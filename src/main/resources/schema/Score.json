@@ -1,0 +1,13 @@
+{
+    "$schema": "http://www.decidely.com/schemas",
+    "$id": "http://www.decidely.com/schemas/Score.json",
+    "title": "Score",
+    "type": "object",
+    "properties": {
+        "option": { "type": { "$ref": "Option.json#/"} },
+        "factor": { "type": { "$ref": "Factor.json#/"} },
+        "score": { "type": "number" }
+    },
+    "required": ["option", "factor", "score"],
+    "additionalProperties": false
+}

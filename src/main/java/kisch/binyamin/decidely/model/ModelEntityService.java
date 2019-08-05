@@ -4,11 +4,15 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
+import kisch.binyamin.decidely.utils.db.ServicingService;
 
 public abstract class ModelEntityService<E extends ModelEntity, R extends JpaRepository<E, Long>> {
 	
 	@Autowired
 	private R repository;
+	
+	@Autowired
+	private ServicingService servicingService;
 	
 	public ModelEntityService() {
 		super();
@@ -26,6 +30,10 @@ public abstract class ModelEntityService<E extends ModelEntity, R extends JpaRep
 		repository.save(entity);
 	}
 	
+	public void saveAll(Iterable<E> entities) {
+		repository.saveAll(entities);
+	}
+	
 	public boolean existsById(Long id) {
 		return repository.existsById(id);
 	}
@@ -38,4 +46,12 @@ public abstract class ModelEntityService<E extends ModelEntity, R extends JpaRep
 		this.repository = repository;
 	}
 
+	public ServicingService getServicingService() {
+		return servicingService;
+	}
+
+	public void setServicingService(ServicingService servicingService) {
+		this.servicingService = servicingService;
+	}
+	
 }

@@ -2,7 +2,9 @@ package kisch.binyamin.decidely.utils.db;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 
@@ -18,7 +20,10 @@ import kisch.binyamin.decidely.factor.FactorRepository;
 import kisch.binyamin.decidely.model.Decision;
 import kisch.binyamin.decidely.model.Factor;
 import kisch.binyamin.decidely.model.Option;
+import kisch.binyamin.decidely.model.Score;
 import kisch.binyamin.decidely.option.OptionRepository;
+import kisch.binyamin.decidely.result.Result;
+import kisch.binyamin.decidely.score.ScoreRepository;
 
 @Service
 public class DbUtilsImpl implements DbUtils {
@@ -38,6 +43,8 @@ public class DbUtilsImpl implements DbUtils {
 	private OptionRepository optionRepository;
 	@Autowired
 	private FactorRepository factorRepository;
+	@Autowired
+	private ScoreRepository scoreRepository;
 	
 	public DbUtilsImpl() {
 	}
@@ -48,48 +55,71 @@ public class DbUtilsImpl implements DbUtils {
 		List<Decision> decisions = new ArrayList<Decision>(N_DECISIONS);
 		List<Option> options = new ArrayList<Option>(N_OPTIONS);
 		List<Factor> factors = new ArrayList<Factor>(N_FACTORS);
+		List<Score> scores = new ArrayList<Score>(N_FACTORS*N_OPTIONS);
 		
 		for(int i = 0; i < N_DECISIONS; ++i) {
 			decisions.add(new Decision());
-			decisions.get(i).setText(Decision.class.getSimpleName() + " " + i);
+			decisions.get(i).setText(Decision.class.getSimpleName() + " #" + i);
 		}
 		for(int i = 0; i < N_OPTIONS; ++i) {
 			Option option = new Option();
 			int dec_i = i % N_DECISIONS;
-			option.setText(Option.class.getSimpleName() + " " + dec_i + "_" + i);
+			option.setText(Option.class.getSimpleName() + " #" + i + " for decision #" + dec_i);
 			options.add(option);
+			Decision d = decisions.get(dec_i); 
+			d.getOptions().add(option);
+			option.setDecision(d);
+			
 		}
 		for(int i = 0; i < N_FACTORS; ++i) {
 			Factor factor = new Factor();
-			int opt_i = i % N_OPTIONS;
 			int dec_i = i % N_DECISIONS;
-			factor.setScore(rand.nextInt(N) + 1);
 			factor.setWeight(rand.nextInt(N) + 1);
-			factor.setText("Factor " + dec_i + "_" + opt_i + "_" + i);
+			factor.setText("Factor #" + i + " for decision #" + dec_i);
 			factors.add(factor);
+			Decision d = decisions.get(dec_i); 
+			d.getFactors().add(factor);
+			factor.setDecision(d);
 		}
 		
-		// persist unrelated entities
-		for (Decision decision : decisions) decisionRepository.save(decision);
-		for (Option option : options) optionRepository.save(option);
-		for (Factor factor : factors) factorRepository.save(factor);
-		
-		// add relationships between entities
-		for(int i = 0; i < N_OPTIONS; ++i) {
-			int dec_i = i % N_DECISIONS;
-			options.get(i).setDecision(decisions.get(dec_i));
-			decisions.get(dec_i).getOptions().add(options.get(i));
+		for (Decision decision : decisions) {
+			List<Option> dOptions = decision.getOptions();
+			List<Factor> dFactors = decision.getFactors();
+			decision.setOptions(new ArrayList<Option>());
+			decision.setFactors(new ArrayList<Factor>());
+			decisionRepository.saveAndFlush(decision);
+			decision.setOptions(dOptions);
+			decision.setFactors(dFactors);
 		}
-		for(int i = 0; i < N_FACTORS; ++i) {
-			int opt_i = i % N_OPTIONS;
-			factors.get(i).setOption(options.get(opt_i));
-			options.get(opt_i).getFactors().add(factors.get(i));
+		for (Option option : options) optionRepository.saveAndFlush(option);
+		for (Factor factor : factors) factorRepository.saveAndFlush(factor);
+		
+		for(int i = 0; i < N_DECISIONS; ++i) {
+			Decision d = decisions.get(i);
+			Map<String, Score> scoresMap = new HashMap<String, Score>(d.getOptions().size() * d.getFactors().size());
+			for(Option o : d.getOptions()) {
+				for(Factor f : d.getFactors()) {
+					Score score = new Score();
+					score.setOption(o);
+					score.setFactor(f);
+					score.setScore(rand.nextInt(N) + 1);
+					scores.add(score);
+					scoresMap.put(o.getId() + ":" + f.getId(), score);
+				}
+			}
+			d.setScores(scoresMap);
 		}
 		
-		// persist relations
-		for (Decision decision : decisions) decisionRepository.save(decision);
-		for (Option option : options) optionRepository.save(option);
-		for (Factor factor : factors) factorRepository.save(factor);
+		// persist entities
+		for (Score score : scores) scoreRepository.saveAndFlush(score);
+		for (Decision decision : decisions) decisionRepository.saveAndFlush(decision); // Saving relationships from decisions' side
+		
+		// Calculate and persist results
+		Result result = new Result();
+		for(Decision decision : decisions) {
+			result.calculateOptionsTotalScores(decision);
+		}
+		for (Option option : options) optionRepository.saveAndFlush(option);
 	}
 	
 	@Override

@@ -1,0 +1,23 @@
+{
+    "$schema": "http://www.decidely.com/schemas",
+    "$id": "http://www.decidely.com/schemas/Decision.json",
+    "title": "Decision",
+    "type": "object",
+    "properties": {
+        "id": { "type": "integer" },
+        "text": { "type": "string" },
+        "options": {
+            "type": "array",
+            "items": { "type": {"$ref": "Option.json#/"} }
+        },
+        "factors": {
+            "type": "array",
+            "items": { "type": {"$ref": "Factor.json#/"} }
+        },
+        "scores": {
+
+        }
+    },
+    "required": ["id", "text", "options", "factors", "scores"],
+    "additionalProperties": false
+}

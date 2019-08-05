@@ -1,0 +1,14 @@
+{
+    "$schema": "http://www.decidely.com/schemas",
+    "$id": "http://www.decidely.com/schemas/Factor.json",
+    "title": "Factor",
+    "type": "object",
+    "properties": {
+        "id": { "type": "integer" },
+        "text": { "type": "string" },
+        "weight": { "type": "integer" },
+        "decision": { "type": { "$ref": "Decision.json#/" } }
+    },
+    "required": ["id", "text", "weight", "decision"],
+    "additionalProperties": false
+}
