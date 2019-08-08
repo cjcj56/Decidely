@@ -34,10 +34,15 @@ public class FactorController extends ModelEntityController<Factor, FactorServic
 		return getService().findByIdAndDecisionId(factorId, decisionId);
 	}
 	
-	@RequestMapping(method = RequestMethod.POST, value = "/factors")
-	public Long addFactor(@RequestBody Factor factor) {
-		getService().save(factor);
-		return factor.getId();
+	@RequestMapping(method = RequestMethod.POST, value = "/decisions/{decisionId}/factors")
+	public List<Long> addFactors(@RequestBody Factors factors, @PathVariable Long decisionId) {
+		getService().saveAllToDecisionId(factors.getEntities(), decisionId);
+		return factors.extractIds();
+	}
+	
+	@RequestMapping(method = RequestMethod.PUT, value = "/decisions/{decisionId}/factors")
+	public void updateFactors(@RequestBody Factors factors, @PathVariable Long decisionId) {
+		getService().saveAllToDecisionId(factors.getEntities(), decisionId);
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT, value = "/factors/{id}")
@@ -48,11 +53,4 @@ public class FactorController extends ModelEntityController<Factor, FactorServic
 		}
 	}
 	
-	@RequestMapping(method = RequestMethod.PUT, value = "/decision/{decisionId}/factors/{factorId}")
-	public void updateFactor(@RequestBody Factor factor, @PathVariable Long decisionId, @PathVariable Long factorId) {
-		if(getService().existsByIdAndDecisionId(factorId, decisionId)) {
-			getService().saveToDecisionId(factor, decisionId);
-		}
-	}
-		
 }

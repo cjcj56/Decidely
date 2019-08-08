@@ -35,28 +35,14 @@ public class ScoreController extends ModelEntityController<Score, ScoreService> 
 		return getService().findByIdAndDecisionId(scoreId, decisionId);
 	}
 	
-	@RequestMapping(method = RequestMethod.POST, value = "/scores")
-	public void addFactor(@RequestBody Score score) {
-		getService().save(score);
+	@RequestMapping(method = RequestMethod.POST, value = "/decisions/{decisionId}/scores")
+	public List<Long> addScoresToDecisionId(@RequestBody Scores scores, @PathVariable Long decisionId) {
+		getService().saveAllToDecisionId(scores.getEntities(), decisionId);
+		return scores.extractIds();
 	}
 	
-	@RequestMapping(method = RequestMethod.POST, value = "/options/{optionId}/factors/{factorId}/scores")
-	public void addFactor(@RequestBody Score score, @PathVariable Long optionId, @PathVariable Long factorId) {
-		getService().saveToOptionIdAndFactorId(score, optionId, factorId);
-	}
-	
-	@RequestMapping(method = RequestMethod.PUT, value = "/scores/{id}")
-	public void updateScore(@RequestBody Score score, @PathVariable Long id) {
-		if(getService().existsById(id)) {
-			score.setId(id);
-			getService().save(score);
-		}
-	}
-	
-	@RequestMapping(method = RequestMethod.PUT, value = "/options/{optionId}/factors/{factorId}/scores/{scoreId}")
-	public void updateFactor(@RequestBody Score score, @PathVariable Long optionId, Long factorId, Long scoreId) {
-		if(getService().existsByIdAndOptionIdAndFactorId(scoreId, optionId, factorId)) {
-			getService().saveToOptionIdAndFactorId(score, optionId, factorId);
-		}
+	@RequestMapping(method = RequestMethod.PUT, value = "/scores")
+	public void updateScores(@RequestBody Scores scores) {
+		getService().saveAll(scores.getEntities());
 	}
 }

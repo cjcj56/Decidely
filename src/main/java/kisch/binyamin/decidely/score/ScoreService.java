@@ -1,6 +1,9 @@
 package kisch.binyamin.decidely.score;
 
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -55,7 +58,18 @@ public class ScoreService extends ModelEntityService<Score, ScoreRepository>{
 		}		
 		score.setOption(option);
 		score.setFactor(factor);
-		save(score);
+		saveAndFlush(score);
+	}
+	
+	public void saveAllToDecisionId(List<Score> scores, Long decisionId) {
+		Decision decision = getServicingService().getDecisionService().getOne(decisionId);
+		if(decision == null) {
+			throw new EntityNotFoundException(String.format(DbMessagesConsts.ENTITY_NOT_FOUND_BY_ID, "Decision", decisionId));
+		}
+		saveAll(scores);
+		flush();
+		decision.setScores(scores.stream().collect(Collectors.toMap(s -> s.getOption().getId() + ":" + s.getFactor().getId(), Function.identity())));
+		getServicingService().getDecisionService().saveAndFlush(decision);
 	}
 
 }

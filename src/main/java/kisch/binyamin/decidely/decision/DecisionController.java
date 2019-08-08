@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import kisch.binyamin.decidely.model.Decision;
 import kisch.binyamin.decidely.model.ModelEntityController;
+import kisch.binyamin.decidely.model.Option;
+import kisch.binyamin.decidely.result.Result;
 
 @RestController
 public class DecisionController extends ModelEntityController<Decision, DecisionService> {
@@ -23,6 +25,14 @@ public class DecisionController extends ModelEntityController<Decision, Decision
 		return getService().getOne(id);
 	}
 	
+	@RequestMapping("/decisions/{id:\\d+}/results")
+	public List<Option> getDecisionRקדוךאד(@PathVariable Long id) {
+		Decision decision = getService().getOne(id);
+		Result.calculateOptionsTotalScores(decision);
+		getService().saveAllDecisionOptions(decision.getOptions());
+		return decision.getOptions();
+	}
+	
 	@RequestMapping(method = RequestMethod.POST, value = "/decisions")
 	public Long addDecision(@RequestBody Decision decision) {
 		getService().save(decision);
@@ -32,6 +42,11 @@ public class DecisionController extends ModelEntityController<Decision, Decision
 	@RequestMapping(method = RequestMethod.PUT, value = "/decisions/{id:\\d+}")
 	public void updateDecision(@RequestBody Decision decision, Long id) {
 		getService().save(decision);
+	}
+	
+	@RequestMapping(method = RequestMethod.DELETE, value = "/decisions/{decisionId}/scores")
+	public void deleteDecisionsScores(@PathVariable Long decisionId) {
+		getService().deleteAllScores(decisionId);
 	}
 
 }

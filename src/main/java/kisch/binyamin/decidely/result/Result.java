@@ -11,7 +11,7 @@ import kisch.binyamin.decidely.model.Score;
 
 public class Result {
 
-	public void calculateOptionsTotalScores(Decision decision) {
+	public static void calculateOptionsTotalScores(Decision decision) {
 		Map<Long, Double> optionsScores =
 				decision.getOptions().stream().map(opt -> opt.getId())
 				.collect(Collectors.toMap(Function.identity(), x -> 0.0));

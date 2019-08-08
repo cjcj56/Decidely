@@ -46,11 +46,17 @@ public class DbUtilsImpl implements DbUtils {
 	@Autowired
 	private ScoreRepository scoreRepository;
 	
+	private boolean initTestDataToDb = false;
+	
 	public DbUtilsImpl() {
 	}
 	
 	@PostConstruct
 	public void initTestData() {
+		
+		if(!initTestDataToDb) {
+			return;
+		}
 		
 		List<Decision> decisions = new ArrayList<Decision>(N_DECISIONS);
 		List<Option> options = new ArrayList<Option>(N_OPTIONS);

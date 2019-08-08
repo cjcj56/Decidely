@@ -34,8 +34,16 @@ public abstract class ModelEntityService<E extends ModelEntity, R extends JpaRep
 		repository.saveAll(entities);
 	}
 	
+	public void saveAndFlush(E entity) {
+		repository.saveAndFlush(entity);
+	}
+	
 	public boolean existsById(Long id) {
 		return repository.existsById(id);
+	}
+	
+	public void flush() {
+		getRepository().flush();
 	}
 
 	public R getRepository() {
@@ -52,6 +60,10 @@ public abstract class ModelEntityService<E extends ModelEntity, R extends JpaRep
 
 	public void setServicingService(ServicingService servicingService) {
 		this.servicingService = servicingService;
+	}
+	
+	public void deleteAll(Iterable<? extends E> entities) {
+		repository.deleteAll(entities);
 	}
 	
 }

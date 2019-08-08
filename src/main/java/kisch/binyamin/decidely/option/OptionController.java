@@ -41,15 +41,14 @@ public class OptionController extends ModelEntityController<Option, OptionServic
 		return decisionId.equals(decision.getId()) ? option : null;
 	}
 	
-	@RequestMapping(method = RequestMethod.POST, value = "/options")
-	public Long addOption(@RequestBody Option option) {
-		getService().save(option);
-		return option.getId();
-	}
-	
 	@RequestMapping(method = RequestMethod.POST, value = "/decisions/{decisionId}/options")
-	public void addOption(@RequestBody Option option, @PathVariable Long decisionId) {
-		getService().saveToDecisionId(option, decisionId);
+	public List<Long> addOptions(@RequestBody Options options, @PathVariable Long decisionId) {
+		getService().saveAllToDecisionId(options.getEntities(), decisionId);
+		return options.extractIds();
 	}
 	
+	@RequestMapping(method = RequestMethod.PUT, value = "/decisions/{decisionId}/options")
+	public void updateOptions(@RequestBody Options options, @PathVariable Long decisionId) {
+		getService().saveAllToDecisionId(options.getEntities(), decisionId);
+	}
 }
