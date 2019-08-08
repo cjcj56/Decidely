@@ -26,7 +26,7 @@ public class DecisionController extends ModelEntityController<Decision, Decision
 	}
 	
 	@RequestMapping("/decisions/{id:\\d+}/results")
-	public List<Option> getDecisionRקדוךאד(@PathVariable Long id) {
+	public List<Option> getDecisionResults(@PathVariable Long id) {
 		Decision decision = getService().getOne(id);
 		Result.calculateOptionsTotalScores(decision);
 		getService().saveAllDecisionOptions(decision.getOptions());
