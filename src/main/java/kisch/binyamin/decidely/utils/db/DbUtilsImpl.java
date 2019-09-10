@@ -121,9 +121,8 @@ public class DbUtilsImpl implements DbUtils {
 		for (Decision decision : decisions) decisionRepository.saveAndFlush(decision); // Saving relationships from decisions' side
 		
 		// Calculate and persist results
-		Result result = new Result();
 		for(Decision decision : decisions) {
-			result.calculateOptionsTotalScores(decision);
+			Result.calculateOptionsTotalScores(decision);
 		}
 		for (Option option : options) optionRepository.saveAndFlush(option);
 	}

@@ -15,18 +15,18 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class Option extends TextEntity implements Comparable<Option> {
 	
 	@Min(-1)
-	private double totalScore;
+	private double normalizedScore;
 	
 	@ManyToOne
 	@JsonBackReference
 	private Decision decision;
 	
-	public double getTotalScore() {
-		return this.totalScore;
+	public double getNormalizedScore() {
+		return this.normalizedScore;
 	}
 
-	public void setTotalScore(double totalScore) {
-		this.totalScore = totalScore;
+	public void setNormalizedScore(double totalScore) {
+		this.normalizedScore = totalScore;
 	}
 	
 	public Decision getDecision() {
@@ -39,6 +39,6 @@ public class Option extends TextEntity implements Comparable<Option> {
 
 	@Override
 	public int compareTo(Option other) {
-		return Double.compare(this.totalScore, other.getTotalScore());
+		return Double.compare(this.normalizedScore, other.getNormalizedScore());
 	}
 }

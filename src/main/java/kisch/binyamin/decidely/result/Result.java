@@ -9,6 +9,7 @@ import kisch.binyamin.decidely.model.Decision;
 import kisch.binyamin.decidely.model.Option;
 import kisch.binyamin.decidely.model.Score;
 
+
 public class Result {
 
 	public static void calculateOptionsTotalScores(Decision decision) {
@@ -17,10 +18,10 @@ public class Result {
 				.collect(Collectors.toMap(Function.identity(), x -> 0.0));
 		for (Score score : decision.getScores().values()) {
 			Long optId = score.getOption().getId();
-			optionsScores.put(optId, optionsScores.get(optId) + score.getScore() * score.getFactor().getWeight());
+			optionsScores.put(optId, optionsScores.get(optId) + score.getScore() * (score.getFactor().getWeight() / decision.getScale()));
 		}
 		for(Option option : decision.getOptions()) {
-			option.setTotalScore(optionsScores.get(option.getId()));
+			option.setNormalizedScore(optionsScores.get(option.getId()) / decision.getFactors().size());
 		}
 		decision.getOptions().sort(null);
 		Collections.reverse(decision.getOptions());

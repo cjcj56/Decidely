@@ -9,6 +9,8 @@ import javax.validation.constraints.Min;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import static kisch.binyamin.decidely.DecidelyConsts.FACTOR_MAX_WEIGHT;
+
 @Entity
 @Table(name = "FACTORS")
 //@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -16,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class Factor extends TextEntity {
 	
 	@Min(value = -1)
-	@Max(10)
+	@Max(FACTOR_MAX_WEIGHT)
 	private int weight;
 	
 	@ManyToOne

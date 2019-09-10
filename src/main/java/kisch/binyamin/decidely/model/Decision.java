@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -12,9 +13,12 @@ import javax.persistence.JoinTable;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import static kisch.binyamin.decidely.DecidelyConsts.FACTOR_MAX_WEIGHT;
 
 
 @Entity
@@ -42,7 +46,10 @@ public class Decision extends TextEntity {
 	@JoinTable(joinColumns = {@JoinColumn(name = "DECISION_ID")},
 		inverseJoinColumns = {@JoinColumn(name = "SCORE_ID")}
 	)
-	private Map<String, Score> scores = new HashMap<String, Score>(); 
+	private Map<String, Score> scores = new HashMap<String, Score>();
+	
+	@Transient
+	private double scale = -1;
 	
 	public List<Option> getOptions() {
 		return options;
@@ -68,6 +75,18 @@ public class Decision extends TextEntity {
 		this.scores = scores;
 	}
 	
+	public double getScale() {
+		if(this.scale <= 0) {
+			this.scale = this.factors.stream().collect(Collectors.summingInt(f -> f.getWeight())).doubleValue() * factors.size() / FACTOR_MAX_WEIGHT;
+		}
+		assert scale > 0;
+		return this.scale;
+	}
+
+	public void setScale(double scale) {
+		this.scale = scale;
+	}
+
 	@Override
 	public boolean equals(Object other) {
 		if(!super.equals(other)) {
